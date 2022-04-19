@@ -8,7 +8,6 @@ from gi.repository import NM
 class Wireguard(LinuxNetworkManager):
     """Creates a Wireguard connection."""
     protocol = "wireguard"
-    _persistence_prefix = "nm_{}_".format(protocol)
     virtual_device_name = "proton0"
 
     @classmethod
