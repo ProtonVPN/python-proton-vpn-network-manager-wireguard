@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-
+#!/usr/bi:q
+xisgit n/env python
+xisxisxis
 from setuptools import setup, find_namespace_packages
 
 setup(
