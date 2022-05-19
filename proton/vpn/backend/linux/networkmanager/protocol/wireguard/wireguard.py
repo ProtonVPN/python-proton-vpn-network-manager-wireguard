@@ -1,4 +1,5 @@
 from proton.vpn.backend.linux.networkmanager import LinuxNetworkManager
+from proton.vpn.connection import states, events
 
 import gi
 gi.require_version("NM", "1.0")
@@ -41,7 +42,7 @@ class Wireguard(LinuxNetworkManager):
         peer = NM.WireGuardPeer.new()
         peer.append_allowed_ip("0.0.0.0/0", False)
         peer.set_endpoint(f"{self._vpnserver.server_ip}:{self._vpnserver.udp_ports[0]}", False)
-        peer.set_public_key(self._vpnserver.x25519pk, False)
+        peer.set_public_key(self._vpnserver.wg_public_key_x25519, False)
 
         s_wg = NM.SettingWireGuard.new()
         s_wg.append_peer(peer)
