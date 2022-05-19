@@ -1,4 +1,4 @@
-#  ProtonVPN Network Manager Wireguard
+#  Proton VPN Network Manager Wireguard
 
 The `proton-vpn-network-manager-wireguard` component implements the
 [wireguard](https://www.wireguard.com) VPN protocol  using
