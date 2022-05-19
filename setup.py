@@ -10,6 +10,7 @@ setup(
     url="https://github.com/ProtonVPN/pyhon-protonvpn-network-manager-wireguard",
     packages=find_namespace_packages(include=['proton.vpn.backend.linux.networkmanager.protocol.wireguard']),
     include_package_data=True,
+    python_requires=">=3.8",
     install_requires=["proton-core"],
     entry_points={
         "proton_loader_nm_protocol": [
