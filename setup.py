@@ -11,7 +11,10 @@ setup(
     packages=find_namespace_packages(include=['proton.vpn.backend.linux.networkmanager.protocol.wireguard']),
     include_package_data=True,
     python_requires=">=3.8",
-    install_requires=["proton-core"],
+    install_requires=["proton-core", "proton-vpn-network-manager", "pygobject"],
+    extras_require={
+        "development": ["pytest", "pytest-coverage", "pygobject-stubs"]
+    },
     entry_points={
         "proton_loader_nm_protocol": [
             "wireguard = proton.vpn.backend.linux.networkmanager.protocol.wireguard:Wireguard",
