@@ -1,10 +1,11 @@
-from proton.vpn.backend.linux.networkmanager import LinuxNetworkManager
-from proton.vpn.connection import states, events
+import socket
 
 import gi
 gi.require_version("NM", "1.0")
 from gi.repository import NM
-import socket
+
+from proton.vpn.backend.linux.networkmanager.core import LinuxNetworkManager
+
 
 class Wireguard(LinuxNetworkManager):
     """Creates a Wireguard connection."""
