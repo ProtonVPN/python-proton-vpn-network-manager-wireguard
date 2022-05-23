@@ -2,12 +2,12 @@ Source: protonvpn-network-manager-wireguard
 Section: python
 Priority: optional
 Maintainer: Proton Technologies AG <opensource@proton.me>
-Build-Depends: debhelper (>= 9), dh-python, python3-all, python3-setuptools, python3-proton-vpn-network-manager, python3-dbus
+Build-Depends: debhelper (>= 9), dh-python, python3-all, python3-setuptools, python3-proton-vpn-network-manager, python3-dbus, python3-cairo
 Standards-Version: 4.1.1
 X-Python3-Version: >= 3.8
 
 Package: python3-proton-vpn-network-manager-wireguard
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-proton-vpn-network-manager, python3-dbus
+Depends: ${python3:Depends}, ${misc:Depends}, python3-proton-vpn-network-manager, python3-dbus, python3-cairo
 Recommends: python3-tabulate
 Description: Python3 ProtonVPN Network Manager Wireguard Protocol
