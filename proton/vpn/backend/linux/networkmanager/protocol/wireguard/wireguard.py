@@ -59,7 +59,9 @@ class Wireguard(LinuxNetworkManager):
     def __setup_wg_connection(self):
         self.__generate_unique_id()
         self.__configure_connection()
-        self.nm_client._add_connection_async(self.connection)
+        future = self.nm_client._add_connection_async(self.connection)
+        # FIXME: return future instead of blocking
+        future.result()
 
     def _setup(self):
         self.__setup_wg_connection()
