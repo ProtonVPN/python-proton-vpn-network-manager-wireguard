@@ -13,7 +13,7 @@ setup(
     python_requires=">=3.8",
     install_requires=["proton-core", "proton-vpn-network-manager", "pygobject"],
     extras_require={
-        "development": ["pytest", "pytest-coverage", "pygobject-stubs"]
+        "development": ["pytest", "pytest-cov", "pygobject-stubs"]
     },
     entry_points={
         "proton_loader_nm_protocol": [
