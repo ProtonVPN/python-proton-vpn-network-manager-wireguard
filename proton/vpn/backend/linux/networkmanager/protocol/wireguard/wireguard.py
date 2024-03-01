@@ -136,8 +136,15 @@ class Wireguard(LinuxNetworkManager):
     def _set_wireguard_properties(self):
         peer = NM.WireGuardPeer.new()
         peer.append_allowed_ip(self.ALLOWED_IP, False)
-        peer.set_endpoint(f"{self._vpnserver.server_ip}:{self._vpnserver.udp_ports[0]}", False)
+        peer.set_endpoint(
+            f"{self._vpnserver.server_ip}:{self._vpnserver.wireguard_ports.udp[0]}",
+            False
+        )
         peer.set_public_key(self._vpnserver.x25519pk, False)
+
+        # Ensures that the configurations are valid
+        # https://lazka.github.io/pgi-docs/index.html#NM-1.0/classes/WireGuardPeer.html#NM.WireGuardPeer.is_valid
+        peer.is_valid(True, True)
 
         wireguard_config = NM.SettingWireGuard.new()
         wireguard_config.append_peer(peer)

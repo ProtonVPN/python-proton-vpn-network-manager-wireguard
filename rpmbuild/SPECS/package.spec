@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.3
+%define version 0.0.4
 %define release 1
 
 Prefix: %{_prefix}
@@ -45,6 +45,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Fri Mar 1 2024 Alexandru Cheltuitor <alexandru.cheltuitor@proton.ch> 0.0.4
+- Use WireGuard ports
+
 * Mon Feb 26 2024 Alexandru Cheltuitor <alexandru.cheltuitor@proton.ch> 0.0.3
 - Refactor code so that the package can be usable
 
