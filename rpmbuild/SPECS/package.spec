@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.5
+%define version 0.0.6
 %define release 1
 
 Prefix: %{_prefix}
@@ -18,9 +18,11 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{unmangled_name}-%{version}-%{release}-buildroot
 
 BuildRequires: python3-proton-vpn-network-manager
+BuildRequires: python3-proton-vpn-killswitch-network-manager-wireguard
 BuildRequires: python3-setuptools
 
 Requires: python3-proton-vpn-network-manager
+Requires: python3-proton-vpn-killswitch-network-manager-wireguard
 Requires: python3-setuptools
 
 %{?python_disable_dependency_generator}
@@ -45,6 +47,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Wed Apr 17 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.6
+- Add wireguard kill switch dependency
+
 * Thu Apr 4 2024 Alexandru Cheltuitor <alexandru.cheltuitor@proton.ch> 0.0.5
 - Add UI friendly protocol name
 

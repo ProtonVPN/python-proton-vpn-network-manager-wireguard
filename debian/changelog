@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.0.6) unstable; urgency=medium
+
+  * Add wireguard kill switch dependency
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Wed, 17 Apr 2024 18:14:31 +0200
+
 protonvpn-network-manager-wireguard (0.0.5) unstable; urgency=medium
 
   * Add UI friendly protocol name
