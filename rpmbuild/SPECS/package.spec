@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.6
+%define version 0.0.7
 %define release 1
 
 Prefix: %{_prefix}
@@ -47,6 +47,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Thu Apr 25 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.7
+- Show wireguard protocol as experimental in app settings
+
 * Wed Apr 17 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.6
 - Add wireguard kill switch dependency
 

@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.0.7) unstable; urgency=medium
+
+  * Show wireguard protocol as experimental in app settings
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Thu, 25 Apr 2024 12:54:17 +0200
+
 protonvpn-network-manager-wireguard (0.0.6) unstable; urgency=medium
 
   * Add wireguard kill switch dependency

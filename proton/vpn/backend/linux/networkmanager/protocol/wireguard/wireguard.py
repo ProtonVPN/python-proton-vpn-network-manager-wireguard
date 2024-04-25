@@ -48,7 +48,7 @@ class Wireguard(LinuxNetworkManager):
     DNS_PRIORITY = -1500
     VIRTUAL_DEVICE_NAME = "proton0"
     protocol = "wireguard"
-    ui_protocol = "WireGuard"
+    ui_protocol = "WireGuard (experimental)"
     connection = None
 
     def __init__(self, *args, **kwargs):
