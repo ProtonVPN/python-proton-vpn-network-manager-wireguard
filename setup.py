@@ -8,7 +8,7 @@ setup(
     author="Proton Technologies",
     author_email="contact@protonmail.com",
     url="https://github.com/ProtonVPN/pyhon-protonvpn-network-manager-wireguard",
-    packages=find_namespace_packages(include=['proton.vpn.backend.linux.networkmanager.protocol.wireguard']),
+    packages=find_namespace_packages(include=['proton.vpn.backend.linux.networkmanager.protocol.wireguard.*']),
     include_package_data=True,
     install_requires=[
         "proton-core", "proton-vpn-network-manager",
