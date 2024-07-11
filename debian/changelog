@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.0.9) unstable; urgency=medium
+
+  * Add proton-vpn-api-core dependency.
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Wed, 10 Jul 2024 18:16:45 +0200
+
 protonvpn-network-manager-wireguard (0.0.8) unstable; urgency=medium
 
   * Add implementation of local agent connections
