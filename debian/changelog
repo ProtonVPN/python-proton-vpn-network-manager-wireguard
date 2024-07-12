@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.0.10) unstable; urgency=medium
+
+  * Reestablish local agent connection when client is started up with an active connection
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Fri, 12 Jul 2024 17:38:48 +0200
+
 protonvpn-network-manager-wireguard (0.0.9) unstable; urgency=medium
 
   * Add proton-vpn-api-core dependency.

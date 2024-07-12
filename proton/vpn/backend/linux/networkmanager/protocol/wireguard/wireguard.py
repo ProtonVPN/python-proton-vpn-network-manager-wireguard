@@ -68,24 +68,10 @@ class Wireguard(LinuxNetworkManager):
         self._connection_settings = NM.SettingConnection.new()
         self.connection = NM.SimpleConnection.new()
 
-    async def refresh_certificate(self):
+    async def update_credentials(self, credentials):
         """Notifies the vpn server that the wireguard certificate needs a refresh."""
-        try:
-            # FIXME: Persist the credentials between app sessions. # pylint: disable=fixme
-            credentials = self._vpncredentials.pubkey_credentials
-        except RuntimeError:
-            logger.error("Wireguard credentials are not available, "
-                         "unable to refresh certificate. Disconnect then reconnect")
-            return
-
-        try:
-            # FIXME: Consider disconnecting the connection explicitly. # pylint: disable=fixme
-            await AgentConnector().connect(
-                self._vpnserver.domain,
-                credentials
-            )
-        except LocalAgentConnectionError as exc:
-            logger.warning("%s", exc)
+        await super().update_credentials(credentials)
+        await self._start_local_agent_connection()
 
     def _modify_connection(self):
         self._set_custom_connection_id()
@@ -177,22 +163,22 @@ class Wireguard(LinuxNetworkManager):
 
         self.connection.add_setting(wireguard_config)
 
-    def _notify_on_connected(self):
-        async def _on_connected():
+    async def _start_local_agent_connection(self):
+        status = None
+        try:
             connection = await AgentConnector().connect(
                 self._vpnserver.domain,
                 self._vpncredentials.pubkey_credentials
             )
-
             status = connection.get_status()
+        except LocalAgentConnectionError:
+            logger.exception("Error getting local agent status.")
 
-            if status == State.Connected:
-                self._notify_subscribers(events.Connected(EventContext(connection=self)))
-            else:
-                self._notify_subscribers(
-                    events.UnexpectedError(EventContext(connection=self)))
-
-        asyncio.run_coroutine_threadsafe(_on_connected(), self._asyncio_loop)
+        if status == State.Connected:
+            self._notify_subscribers(events.Connected(EventContext(connection=self)))
+        else:
+            self._notify_subscribers(
+                events.UnexpectedError(EventContext(connection=self)))
 
     # pylint: disable=arguments-renamed
     def _on_state_changed(
@@ -218,7 +204,9 @@ class Wireguard(LinuxNetworkManager):
         )
 
         if state is NM.ActiveConnectionState.ACTIVATED:
-            self._notify_on_connected()
+            asyncio.run_coroutine_threadsafe(
+                self._start_local_agent_connection(), self._asyncio_loop
+            )
         elif state == NM.ActiveConnectionState.DEACTIVATED:
             if reason in [NM.ActiveConnectionStateReason.USER_DISCONNECTED]:
                 self._notify_subscribers_threadsafe(

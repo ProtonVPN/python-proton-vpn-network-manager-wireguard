@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.9
+%define version 0.0.10
 %define release 1
 
 Prefix: %{_prefix}
@@ -18,7 +18,7 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{unmangled_name}-%{version}-%{release}-buildroot
 
 BuildRequires: python3-proton-vpn-logger
-BuildRequires: python3-proton-vpn-api-core
+BuildRequires: python3-proton-vpn-api-core >= 0.29.1
 BuildRequires: python3-proton-vpn-network-manager
 BuildRequires: python3-proton-vpn-killswitch-network-manager-wireguard
 BuildRequires: python3-setuptools
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Fri Jul 12 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.10
+- Reestablish local agent connection when client is started up with an active connection
+
 * Wed Jul 10 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.9
 - Add proton-vpn-api-core dependency.
 

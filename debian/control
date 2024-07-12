@@ -12,7 +12,7 @@ X-Python3-Version: >= 3.8
 Package: python3-proton-vpn-network-manager-wireguard
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends},
-    python3-proton-vpn-logger, python3-proton-vpn-api-core,
+    python3-proton-vpn-logger, python3-proton-vpn-api-core (>= 0.29.1),
     python3-proton-vpn-network-manager,
     python3-proton-vpn-killswitch-network-manager-wireguard
 Recommends: python3-tabulate
