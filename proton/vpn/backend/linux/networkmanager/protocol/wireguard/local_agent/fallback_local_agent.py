@@ -33,10 +33,9 @@ from proton.vpn import logging
 logger = logging.getLogger(__name__)
 
 
-class LocalAgentConnectionError(Exception):  # pylint: disable=too-few-public-methods
+class LocalAgentError(Exception):  # pylint: disable=too-few-public-methods
     """
-    Raised when the local agent TLS connection did not succeed.
-    It has the original exception chained to it.
+    Every error from local agent is this type.
     """
 
 
@@ -54,9 +53,12 @@ class AgentConnection:  # pylint: disable=too-few-public-methods
     def __init__(self, context):
         self._context = context
 
-    def get_status(self):
+    async def get_status(self):
         """Returns the connection status. This always returns connected."""
         return State.Connected
+
+    async def close(self):
+        """This is a stub to mirror the external local agent api."""
 
 
 class AgentConnector:  # pylint: disable=too-few-public-methods
@@ -77,7 +79,7 @@ class AgentConnector:  # pylint: disable=too-few-public-methods
                 None, self._connect_sync, vpn_server_domain, credentials
             )
         except (OSError, TimeoutError, ssl.SSLError) as exc:
-            raise LocalAgentConnectionError(
+            raise LocalAgentError(
                 f"Local agent connection to {vpn_server_domain} failed."
             ) from exc
 

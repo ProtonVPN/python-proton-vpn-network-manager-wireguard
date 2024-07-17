@@ -25,7 +25,7 @@ along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
 # might end up in public repos, thus breaking other packages.
 # TO-DO: Remove linter warnings once python3-local-agent has been moved to WG Package.
 import proton.vpn.local_agent # noqa pylint: disable=import-error, no-name-in-module
-from proton.vpn.local_agent import State, LocalAgentConnectionError # noqa pylint: disable=import-error, no-name-in-module, unused-import
+from proton.vpn.local_agent import State, LocalAgentError # noqa pylint: disable=import-error, no-name-in-module, unused-import
 
 
 class AgentConnector:  # pylint: disable=too-few-public-methods

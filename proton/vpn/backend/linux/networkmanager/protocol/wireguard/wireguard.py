@@ -34,7 +34,7 @@ from gi.repository import NM
 from proton.vpn.connection.events import EventContext
 from proton.vpn.connection import events
 from proton.vpn.backend.linux.networkmanager.core import LinuxNetworkManager
-from .local_agent import AgentConnector, State, LocalAgentConnectionError
+from .local_agent import AgentConnector, State, LocalAgentError
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +56,7 @@ class Wireguard(LinuxNetworkManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._connection_settings = None
+        self._agent_connection = None
 
     def setup(self) -> Future:
         """Methods that creates and applies any necessary changes to the connection."""
@@ -166,12 +167,20 @@ class Wireguard(LinuxNetworkManager):
     async def _start_local_agent_connection(self):
         status = None
         try:
-            connection = await AgentConnector().connect(
+            # Close the connection if one already exists
+            if self._agent_connection:
+                await self._agent_connection.close()
+
+            # Re-make it
+            self._agent_connection = await AgentConnector().connect(
                 self._vpnserver.domain,
                 self._vpncredentials.pubkey_credentials
             )
-            status = connection.get_status()
-        except LocalAgentConnectionError:
+
+            # Query the status to ensure we are correctly connected to the vpn
+            status = await self._agent_connection.get_status()
+
+        except LocalAgentError:
             logger.exception("Error getting local agent status.")
 
         if status == State.Connected:

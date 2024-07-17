@@ -1,3 +1,10 @@
+protonvpn-network-manager-wireguard (0.0.11) unstable; urgency=medium
+
+  * Switch over to newer local agent api
+
+ -- Luke Titley <luke.titley@proton.ch>  Wed, 17 Jul 2024 17:00:00 +0200
+
+
 protonvpn-network-manager-wireguard (0.0.10) unstable; urgency=medium
 
   * Reestablish local agent connection when client is started up with an active connection

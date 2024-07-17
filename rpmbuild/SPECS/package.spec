@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.10
+%define version 0.0.11
 %define release 1
 
 Prefix: %{_prefix}
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Wed Jul 17 2024 Luke Titley <luke.titley@proton.ch> 0.0.11
+- Switch over to newer local agent api
+
 * Fri Jul 12 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.10
 - Reestablish local agent connection when client is started up with an active connection
 
