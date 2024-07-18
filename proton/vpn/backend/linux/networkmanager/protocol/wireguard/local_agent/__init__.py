@@ -19,8 +19,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
 """
+from proton.vpn import logging
+
+logger = logging.getLogger(__name__)
+
 
 try:
     from .external_local_agent import * # noqa pylint: disable=import-error, no-name-in-module
 except ModuleNotFoundError:
     from .fallback_local_agent import * # noqa pylint: disable=import-error, no-name-in-module
+    logger.warning("Fallback local agent was loaded.")

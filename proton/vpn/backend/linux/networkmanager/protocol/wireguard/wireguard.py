@@ -169,17 +169,19 @@ class Wireguard(LinuxNetworkManager):
         try:
             # Close the connection if one already exists
             if self._agent_connection:
+                logger.info("Closing existing local agent connection...")
                 await self._agent_connection.close()
 
             # Re-make it
+            logger.info("Establishing local agent connection...")
             self._agent_connection = await AgentConnector().connect(
                 self._vpnserver.domain,
                 self._vpncredentials.pubkey_credentials
             )
 
             # Query the status to ensure we are correctly connected to the vpn
+            logger.info("Getting local agent status...")
             status = await self._agent_connection.get_status()
-
         except LocalAgentError:
             logger.exception("Error getting local agent status.")
 
@@ -213,9 +215,10 @@ class Wireguard(LinuxNetworkManager):
         )
 
         if state is NM.ActiveConnectionState.ACTIVATED:
-            asyncio.run_coroutine_threadsafe(
+            future = asyncio.run_coroutine_threadsafe(
                 self._start_local_agent_connection(), self._asyncio_loop
             )
+            future.add_done_callback(lambda f: f.result())  # Bubble up unhandled exceptions.
         elif state == NM.ActiveConnectionState.DEACTIVATED:
             if reason in [NM.ActiveConnectionStateReason.USER_DISCONNECTED]:
                 self._notify_subscribers_threadsafe(

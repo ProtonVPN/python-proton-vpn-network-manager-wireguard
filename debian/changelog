@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.0.12) unstable; urgency=medium
+
+  * [VPNLINUX-893] Handle expired certificate error raised when getting certificate in PEM format
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Thu, 18 Jul 2024 16:29:11 +0200
+
 protonvpn-network-manager-wireguard (0.0.11) unstable; urgency=medium
 
   * Switch over to newer local agent api

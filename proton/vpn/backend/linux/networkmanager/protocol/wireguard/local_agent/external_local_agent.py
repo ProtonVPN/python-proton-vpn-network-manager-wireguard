@@ -25,15 +25,21 @@ along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
 # might end up in public repos, thus breaking other packages.
 # TO-DO: Remove linter warnings once python3-local-agent has been moved to WG Package.
 import proton.vpn.local_agent # noqa pylint: disable=import-error, no-name-in-module
-from proton.vpn.local_agent import State, LocalAgentError # noqa pylint: disable=import-error, no-name-in-module, unused-import
+from proton.vpn.local_agent import State, LocalAgentError, ExpiredCertificateError # noqa pylint: disable=import-error, no-name-in-module, unused-import
+from proton.vpn.session.exceptions import VPNCertificateExpiredError
 
 
 class AgentConnector:  # pylint: disable=too-few-public-methods
     """AgentConnector that wraps Proton external local agent implementation."""
     async def connect(self, vpn_server_domain: str, credentials):
         """Connect to the local agent server."""
+        try:
+            certificate = credentials.certificate_pem
+        except VPNCertificateExpiredError as exc:
+            raise ExpiredCertificateError("Certificate expired") from exc
+
         return await proton.vpn.local_agent.AgentConnector().connect(  # pylint: disable=E1101
             vpn_server_domain,
             credentials.get_ed25519_sk_pem(),
-            credentials.certificate_pem
+            certificate
         )

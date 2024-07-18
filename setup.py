@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name="proton-vpn-network-manager-wireguard",
-    version="0.0.11",
+    version="0.0.12",
     description="Proton Technologies VPN Wireguard NM connector for linux",
     author="Proton Technologies",
     author_email="contact@protonmail.com",
