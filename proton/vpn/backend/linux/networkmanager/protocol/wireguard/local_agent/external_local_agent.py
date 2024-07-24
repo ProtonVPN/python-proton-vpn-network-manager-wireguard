@@ -19,19 +19,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
 """
-
-# NOTE: linter warnings have been disabled because project is not yet fully
-# deployable to the public, and if any hotfix are required these changes
-# might end up in public repos, thus breaking other packages.
-# TO-DO: Remove linter warnings once python3-local-agent has been moved to WG Package.
-import proton.vpn.local_agent # noqa pylint: disable=import-error, no-name-in-module
-from proton.vpn.local_agent import State, LocalAgentError, ExpiredCertificateError # noqa pylint: disable=import-error, no-name-in-module, unused-import
+import proton.vpn.local_agent  # pylint: disable=import-error, no-name-in-module
+from proton.vpn.local_agent import (  # pylint: disable=no-name-in-module, import-error
+    AgentConnection, StatusMessage, State,
+    LocalAgentError, ExpiredCertificateError)
 from proton.vpn.session.exceptions import VPNCertificateExpiredError
 
 
 class AgentConnector:  # pylint: disable=too-few-public-methods
     """AgentConnector that wraps Proton external local agent implementation."""
-    async def connect(self, vpn_server_domain: str, credentials):
+    async def connect(self, vpn_server_domain: str, credentials) -> AgentConnection:
         """Connect to the local agent server."""
         try:
             certificate = credentials.certificate_pem
@@ -43,3 +40,9 @@ class AgentConnector:  # pylint: disable=too-few-public-methods
             credentials.get_ed25519_sk_pem(),
             certificate
         )
+
+
+__all__ = [
+    "AgentConnector", "AgentConnection", "StatusMessage", "State",
+    "ExpiredCertificateError", "LocalAgentError"
+]

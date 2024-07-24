@@ -27,6 +27,8 @@ from getpass import getuser
 from concurrent.futures import Future
 
 import gi
+
+
 gi.require_version("NM", "1.0")  # noqa: required before importing NM module
 # pylint: disable=wrong-import-position
 from gi.repository import NM
@@ -34,7 +36,10 @@ from gi.repository import NM
 from proton.vpn.connection.events import EventContext
 from proton.vpn.connection import events
 from proton.vpn.backend.linux.networkmanager.core import LinuxNetworkManager
-from .local_agent import AgentConnector, State, LocalAgentError
+from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent \
+    import AgentConnector, State, LocalAgentError, StatusMessage
+from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.listener \
+    import AgentListener
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +62,9 @@ class Wireguard(LinuxNetworkManager):
         super().__init__(*args, **kwargs)
         self._connection_settings = None
         self._agent_connection = None
+        self._agent_listener = AgentListener(
+            subscribers=[self._on_local_agent_status]
+        )
 
     def setup(self) -> Future:
         """Methods that creates and applies any necessary changes to the connection."""
@@ -165,27 +173,32 @@ class Wireguard(LinuxNetworkManager):
         self.connection.add_setting(wireguard_config)
 
     async def _start_local_agent_connection(self):
-        status = None
+        self._agent_listener.stop()
         try:
-            # Close the connection if one already exists
             if self._agent_connection:
                 logger.info("Closing existing local agent connection...")
                 await self._agent_connection.close()
 
-            # Re-make it
             logger.info("Establishing local agent connection...")
             self._agent_connection = await AgentConnector().connect(
                 self._vpnserver.domain,
                 self._vpncredentials.pubkey_credentials
             )
 
-            # Query the status to ensure we are correctly connected to the vpn
-            logger.info("Getting local agent status...")
-            status = await self._agent_connection.get_status()
+            logger.info("Waiting for local agent status...")
+            if self._agent_connection:
+                self._agent_listener.start(self._agent_connection)
+            else:
+                # The fallback local agent implementation does not return a connection object.
+                # This branch should be removed after removing the fallback implementation.
+                await self._on_local_agent_status(StatusMessage(State.Connected))
         except LocalAgentError:
-            logger.exception("Error getting local agent status.")
+            logger.exception("Error requesting local agent status.")
 
-        if status == State.Connected:
+    async def _on_local_agent_status(self, status):
+        """The local agent listener calls this method whenever a new status is
+        read from the local agent connection."""
+        if status.state == State.Connected:
             self._notify_subscribers(events.Connected(EventContext(connection=self)))
         else:
             self._notify_subscribers(
@@ -220,6 +233,7 @@ class Wireguard(LinuxNetworkManager):
             )
             future.add_done_callback(lambda f: f.result())  # Bubble up unhandled exceptions.
         elif state == NM.ActiveConnectionState.DEACTIVATED:
+            self._agent_listener.stop()
             if reason in [NM.ActiveConnectionStateReason.USER_DISCONNECTED]:
                 self._notify_subscribers_threadsafe(
                     events.Disconnected(EventContext(connection=self, error=reason))

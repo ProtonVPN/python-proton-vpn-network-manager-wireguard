@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.12
+%define version 0.0.13
 %define release 1
 
 Prefix: %{_prefix}
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Wed Jul 24 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.13
+- Handle local agent server pushing status messages
+
 * Thu Jul 18 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.12
 - [VPNLINUX-893] Handle expired certificate error raised when getting certificate in PEM format
 

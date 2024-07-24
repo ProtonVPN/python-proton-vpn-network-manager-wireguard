@@ -25,6 +25,7 @@ import asyncio
 import os
 import ssl
 import socket
+from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -33,9 +34,15 @@ from proton.vpn import logging
 logger = logging.getLogger(__name__)
 
 
-class LocalAgentError(Exception):  # pylint: disable=too-few-public-methods
+class LocalAgentError(Exception):
     """
     Every error from local agent is this type.
+    """
+
+
+class ExpiredCertificateError(LocalAgentError):
+    """
+    Raised when the certificate is expired.
     """
 
 
@@ -44,21 +51,16 @@ class State:  # pylint: disable=too-few-public-methods
     Connected = 1
 
 
+@dataclass
+class StatusMessage:
+    """Local agent status message."""
+    state: State
+
+
 class AgentConnection:  # pylint: disable=too-few-public-methods
     """
-    Local agent connection.
-    This is a fallback implementation that connects to the local agent
-    but does not provide any functionality.
+    Local agent connection stub.
     """
-    def __init__(self, context):
-        self._context = context
-
-    async def get_status(self):
-        """Returns the connection status. This always returns connected."""
-        return State.Connected
-
-    async def close(self):
-        """This is a stub to mirror the external local agent api."""
 
 
 class AgentConnector:  # pylint: disable=too-few-public-methods
@@ -124,8 +126,7 @@ class AgentConnector:  # pylint: disable=too-few-public-methods
             context.load_verify_locations(cafile=ca_path)
             context.load_cert_chain(certfile=cert_path, keyfile=key_path, password=key_password)
             with context.wrap_socket(sock, server_hostname=server_hostname):
-                logger.info(f"Connected via local agent to {server_hostname}.")
-                return AgentConnection(context)
+                pass
 
 
 PROTON_VPN_ROOT_CERT = """-----BEGIN CERTIFICATE-----

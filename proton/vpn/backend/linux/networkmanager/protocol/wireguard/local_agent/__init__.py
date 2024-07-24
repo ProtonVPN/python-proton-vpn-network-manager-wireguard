@@ -25,7 +25,16 @@ logger = logging.getLogger(__name__)
 
 
 try:
-    from .external_local_agent import * # noqa pylint: disable=import-error, no-name-in-module
+    from .external_local_agent import (
+        AgentConnector, AgentConnection, StatusMessage,
+        State, LocalAgentError, ExpiredCertificateError)
 except ModuleNotFoundError:
-    from .fallback_local_agent import * # noqa pylint: disable=import-error, no-name-in-module
-    logger.warning("Fallback local agent was loaded.")
+    from .fallback_local_agent import (
+        AgentConnector, AgentConnection, StatusMessage,
+        State, LocalAgentError, ExpiredCertificateError)
+    logger.info("Fallback local agent was loaded.")
+
+__all__ = [
+    "AgentConnector", "AgentConnection", "StatusMessage",
+    "State", "LocalAgentError", "ExpiredCertificateError"
+]
