@@ -29,6 +29,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from proton.vpn.session.exceptions import VPNCertificateExpiredError
+
 from proton.vpn import logging
 
 logger = logging.getLogger(__name__)
@@ -91,8 +93,11 @@ class AgentConnector:  # pylint: disable=too-few-public-methods
 
             # Write certificate to disk.
             cert_path = temp_dir / "cert.pem"
-            with open(cert_path, "w", encoding="utf-8") as file:
-                file.write(credentials.certificate_pem)
+            try:
+                with open(cert_path, "w", encoding="utf-8") as file:
+                    file.write(credentials.certificate_pem)
+            except VPNCertificateExpiredError as exc:
+                raise ExpiredCertificateError("Certificate expired") from exc
 
             # Write encrypted private key to disk.
             key_password = os.urandom(32)

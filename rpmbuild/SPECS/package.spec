@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.0.13
+%define version 0.1.0
 %define release 1
 
 Prefix: %{_prefix}
@@ -18,7 +18,7 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{unmangled_name}-%{version}-%{release}-buildroot
 
 BuildRequires: python3-proton-vpn-logger
-BuildRequires: python3-proton-vpn-api-core >= 0.29.1
+BuildRequires: python3-proton-vpn-api-core >= 0.30.0
 BuildRequires: python3-proton-vpn-network-manager
 BuildRequires: python3-proton-vpn-killswitch-network-manager-wireguard
 BuildRequires: python3-setuptools
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Fri Jul 26 2024 Alexandru Cheltuitor <alexandru.cheltuitor@proton.ch> 0.1.0
+- Notify subscribers whenever we have and expired certificate so it can be refreshed.
+
 * Wed Jul 24 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.13
 - Handle local agent server pushing status messages
 

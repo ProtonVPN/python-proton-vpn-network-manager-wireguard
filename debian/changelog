@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.1.0) unstable; urgency=medium
+
+  * Notify subscribers whenever we have and expired certificate so it can be refreshed. 
+
+ -- Alexandru Cheltuitor <alexandru.cheltuitor@proton.ch>  Fri, 26 Jul 2024 15:00:00 +0100
+
 protonvpn-network-manager-wireguard (0.0.13) unstable; urgency=medium
 
   * Handle local agent server pushing status messages
@@ -15,7 +21,6 @@ protonvpn-network-manager-wireguard (0.0.11) unstable; urgency=medium
   * Switch over to newer local agent api
 
  -- Luke Titley <luke.titley@proton.ch>  Wed, 17 Jul 2024 17:00:00 +0200
-
 
 protonvpn-network-manager-wireguard (0.0.10) unstable; urgency=medium
 

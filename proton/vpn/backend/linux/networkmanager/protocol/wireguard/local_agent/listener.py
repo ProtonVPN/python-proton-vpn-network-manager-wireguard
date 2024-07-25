@@ -20,7 +20,7 @@ import asyncio
 from typing import Optional, List, Awaitable
 
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent \
-    import AgentConnection
+    import AgentConnection, StatusMessage
 
 from proton.vpn import logging
 
@@ -70,7 +70,7 @@ class AgentListener:
         if self._background_task:
             self._background_task.cancel()
 
-    async def _notify_subscribers(self, message):
+    async def _notify_subscribers(self, message: StatusMessage):
         """Notify all subscribers of a new message."""
         for subscriber in self._subscribers:
             await subscriber(message)

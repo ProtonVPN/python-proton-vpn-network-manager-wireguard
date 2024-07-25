@@ -37,7 +37,7 @@ from proton.vpn.connection.events import EventContext
 from proton.vpn.connection import events
 from proton.vpn.backend.linux.networkmanager.core import LinuxNetworkManager
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent \
-    import AgentConnector, State, LocalAgentError, StatusMessage
+    import AgentConnector, State, LocalAgentError, StatusMessage, ExpiredCertificateError
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.listener \
     import AgentListener
 
@@ -173,34 +173,47 @@ class Wireguard(LinuxNetworkManager):
         self.connection.add_setting(wireguard_config)
 
     async def _start_local_agent_connection(self):
-        self._agent_listener.stop()
-        try:
-            if self._agent_connection:
-                logger.info("Closing existing local agent connection...")
-                await self._agent_connection.close()
 
-            logger.info("Establishing local agent connection...")
+        if self._agent_connection:
+            try:
+                logger.info("Closing existing agent connection...")
+                self._agent_listener.stop()
+                await self._agent_connection.close()
+            except LocalAgentError:
+                logger.exception("Unable to close LA connection.")
+
+        try:
+            logger.info("Establishing agent connection to %s...", self._vpnserver.domain)
             self._agent_connection = await AgentConnector().connect(
                 self._vpnserver.domain,
                 self._vpncredentials.pubkey_credentials
             )
 
-            logger.info("Waiting for local agent status...")
             if self._agent_connection:
+                logger.info("Waiting for agent status...")
                 self._agent_listener.start(self._agent_connection)
             else:
                 # The fallback local agent implementation does not return a connection object.
                 # This branch should be removed after removing the fallback implementation.
                 await self._on_local_agent_status(StatusMessage(State.Connected))
+        except ExpiredCertificateError:
+            logger.exception("Expired certificate upon establishing LA connection.")
+            self._notify_subscribers(
+                events.ExpiredCertificate(EventContext(connection=self))
+            )
         except LocalAgentError:
-            logger.exception("Error requesting local agent status.")
+            logger.exception("LA error upon establishing connection.")
+            self._notify_subscribers(
+                events.UnexpectedError(EventContext(connection=self))
+            )
 
-    async def _on_local_agent_status(self, status):
+    async def _on_local_agent_status(self, status: StatusMessage):
         """The local agent listener calls this method whenever a new status is
         read from the local agent connection."""
         if status.state == State.Connected:
             self._notify_subscribers(events.Connected(EventContext(connection=self)))
         else:
+            # TO-DO: Error handling should be done here, based on different state codes
             self._notify_subscribers(
                 events.UnexpectedError(EventContext(connection=self)))
 
@@ -229,7 +242,8 @@ class Wireguard(LinuxNetworkManager):
 
         if state is NM.ActiveConnectionState.ACTIVATED:
             future = asyncio.run_coroutine_threadsafe(
-                self._start_local_agent_connection(), self._asyncio_loop
+                self._start_local_agent_connection(),
+                self._asyncio_loop
             )
             future.add_done_callback(lambda f: f.result())  # Bubble up unhandled exceptions.
         elif state == NM.ActiveConnectionState.DEACTIVATED:
