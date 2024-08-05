@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.fallback_local_agent import StatusMessage, State
+from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.fallback_local_agent import Status, State
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.listener import AgentListener
 
 
@@ -11,8 +11,8 @@ from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.list
 async def test_listen_notifies_status_message_to_subscribers():
     # Given
     subscriber = AsyncMock()
-    listener = AgentListener(subscribers=[subscriber])
-    message = StatusMessage(State.Connected)
+    listener = AgentListener(subscribers=[subscriber], connector=AsyncMock())
+    message = Status(State.CONNECTED)
     read_called: bool = False
 
     async def read_mock():
@@ -39,14 +39,14 @@ async def test_listen_notifies_status_message_to_subscribers():
 @pytest.mark.asyncio
 async def test_stop_cancels_background_task():
     # Given
-    listener = AgentListener()
-    agent_connection = AsyncMock()
+    listener = AgentListener(connector=AsyncMock())
 
-    listener.start(agent_connection)
+    listener.start("domain", "credentials")
     assert listener.background_task
 
     # When
+    background_task = listener.background_task
     listener.stop()
 
     # Then
-    assert listener.background_task.cancelled
+    assert background_task.cancelled

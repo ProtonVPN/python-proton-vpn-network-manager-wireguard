@@ -26,15 +26,15 @@ logger = logging.getLogger(__name__)
 
 try:
     from .external_local_agent import (
-        AgentConnector, AgentConnection, StatusMessage,
-        State, LocalAgentError, ExpiredCertificateError)
+        AgentConnector, AgentConnection, Status,
+        State, Reason, ReasonCode, LocalAgentError, ExpiredCertificateError)
 except ModuleNotFoundError:
     from .fallback_local_agent import (
-        AgentConnector, AgentConnection, StatusMessage,
-        State, LocalAgentError, ExpiredCertificateError)
+        AgentConnector, AgentConnection, Status,
+        State, Reason, ReasonCode, LocalAgentError, ExpiredCertificateError)
     logger.info("Fallback local agent was loaded.")
 
 __all__ = [
-    "AgentConnector", "AgentConnection", "StatusMessage",
-    "State", "LocalAgentError", "ExpiredCertificateError"
+    "AgentConnector", "AgentConnection", "Status",
+    "State", "Reason", "ReasonCode", "LocalAgentError", "ExpiredCertificateError"
 ]

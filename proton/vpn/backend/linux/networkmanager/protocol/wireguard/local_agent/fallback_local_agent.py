@@ -26,8 +26,10 @@ import os
 import ssl
 import socket
 from dataclasses import dataclass
+from enum import Enum, auto
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Optional
 
 from proton.vpn.session.exceptions import VPNCertificateExpiredError
 
@@ -48,20 +50,37 @@ class ExpiredCertificateError(LocalAgentError):
     """
 
 
-class State:  # pylint: disable=too-few-public-methods
+class State(Enum):  # pylint: disable=too-few-public-methods
     """Local agent connection states."""
-    Connected = 1
+    CONNECTED = auto()
+    HARD_JAILED = auto()
+    DISCONNECTED = auto()
+
+
+class ReasonCode(Enum):
+    """Internal code for the local agent state reason"""
+    CERTIFICATE_EXPIRED = 86101
 
 
 @dataclass
-class StatusMessage:
+class Reason:
+    """Reason for the local agent state."""
+    code: ReasonCode
+
+
+@dataclass
+class Status:
     """Local agent status message."""
     state: State
+    reason: Optional[Reason] = None
 
 
 class AgentConnection:  # pylint: disable=too-few-public-methods
     """
     Local agent connection stub.
+
+    This exists only to avoid an import error when using the fallback local
+    agent.
     """
 
 
@@ -82,7 +101,7 @@ class AgentConnector:  # pylint: disable=too-few-public-methods
             return await loop.run_in_executor(
                 None, self._connect_sync, vpn_server_domain, credentials
             )
-        except (OSError, TimeoutError, ssl.SSLError) as exc:
+        except (OSError, ssl.SSLError) as exc:
             raise LocalAgentError(
                 f"Local agent connection to {vpn_server_domain} failed."
             ) from exc

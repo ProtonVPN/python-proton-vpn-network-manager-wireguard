@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.1.0
+%define version 0.2.0
 %define release 1
 
 Prefix: %{_prefix}
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Wed Aug 07 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.2.0
+- Notify when agent connection goes down
+
 * Fri Jul 26 2024 Alexandru Cheltuitor <alexandru.cheltuitor@proton.ch> 0.1.0
 - Notify subscribers whenever we have and expired certificate so it can be refreshed.
 

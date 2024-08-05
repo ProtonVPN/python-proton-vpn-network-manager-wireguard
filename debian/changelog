@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.2.0) unstable; urgency=medium
+
+  * Notify when agent connection goes down
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Wed, 07 Aug 2024 17:51:18 +0200
+
 protonvpn-network-manager-wireguard (0.1.0) unstable; urgency=medium
 
   * Notify subscribers whenever we have and expired certificate so it can be refreshed. 
