@@ -22,7 +22,8 @@ along with ProtonVPN.  If not, see <https://www.gnu.org/licenses/>.
 import proton.vpn.local_agent  # pylint: disable=import-error, no-name-in-module
 from proton.vpn.local_agent import (  # pylint: disable=no-name-in-module, import-error
     AgentConnection, Status, State, Reason, ReasonCode,
-    LocalAgentError, ExpiredCertificateError)
+    LocalAgentError, ExpiredCertificateError
+)
 from proton.vpn.session.exceptions import VPNCertificateExpiredError
 
 
@@ -35,7 +36,7 @@ class AgentConnector:  # pylint: disable=too-few-public-methods
         except VPNCertificateExpiredError as exc:
             raise ExpiredCertificateError("Certificate expired") from exc
 
-        return await proton.vpn.local_agent.AgentConnector().connect(  # pylint: disable=E1101
+        return await proton.vpn.local_agent.AgentConnector().connect(  # pylint: disable=no-member
             vpn_server_domain,
             credentials.get_ed25519_sk_pem(),
             certificate

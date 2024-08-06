@@ -188,10 +188,7 @@ class Wireguard(LinuxNetworkManager):
         if status.state == State.CONNECTED:
             self._notify_subscribers(events.Connected(EventContext(connection=self)))
         elif status.state == State.HARD_JAILED:
-            if status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
-                self._notify_subscribers(
-                    events.ExpiredCertificate(EventContext(connection=self))
-                )
+            self._handle_hard_jailed_state(status)
         elif status.state == State.DISCONNECTED:
             self._notify_subscribers(
                 events.Timeout(EventContext(connection=self))
@@ -199,6 +196,32 @@ class Wireguard(LinuxNetworkManager):
         else:
             self._notify_subscribers(
                 events.UnexpectedError(EventContext(connection=self)))
+
+    def _handle_hard_jailed_state(self, status: Status):
+        if status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
+            self._notify_subscribers(
+                events.ExpiredCertificate(EventContext(connection=self))
+            )
+        elif self._has_reached_max_amount_of_concurrent_vpn_connections(status.reason.code):
+            self._notify_subscribers(
+                events.MaximumSessionsReached(EventContext(connection=self))
+            )
+        else:
+            self._notify_subscribers(
+                events.UnexpectedError(EventContext(connection=self))
+            )
+
+    def _has_reached_max_amount_of_concurrent_vpn_connections(self, code: ReasonCode) -> bool:
+        """Check if a user has reached the maximum number of concurrent VPN sessions/connections
+        permitted for the current tier."""
+        return code in (
+            ReasonCode.MAX_SESSIONS_UNKNOWN,
+            ReasonCode.MAX_SESSIONS_FREE,
+            ReasonCode.MAX_SESSIONS_BASIC,
+            ReasonCode.MAX_SESSIONS_PLUS,
+            ReasonCode.MAX_SESSIONS_VISIONARY,
+            ReasonCode.MAX_SESSIONS_PRO
+        )
 
     # pylint: disable=arguments-renamed
     def _on_state_changed(

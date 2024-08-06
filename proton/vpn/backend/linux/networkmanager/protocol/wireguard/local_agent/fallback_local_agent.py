@@ -60,6 +60,12 @@ class State(Enum):  # pylint: disable=too-few-public-methods
 class ReasonCode(Enum):
     """Internal code for the local agent state reason"""
     CERTIFICATE_EXPIRED = 86101
+    MAX_SESSIONS_UNKNOWN = 86110
+    MAX_SESSIONS_FREE = 86111
+    MAX_SESSIONS_BASIC = 86112
+    MAX_SESSIONS_PLUS = 86113
+    MAX_SESSIONS_VISIONARY = 86114
+    MAX_SESSIONS_PRO = 86115
 
 
 @dataclass
