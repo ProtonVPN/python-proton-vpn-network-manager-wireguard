@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.2.0
+%define version 0.3.0
 %define release 1
 
 Prefix: %{_prefix}
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Thu Aug 08 2024 Luke Titley <luke.titley@proton.ch> 0.3.0
+- Handle certificate expiration midway through a session
+
 * Wed Aug 07 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.2.0
 - Notify when agent connection goes down
 
@@ -61,7 +64,7 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 - Handle local agent server pushing status messages
 
 * Thu Jul 18 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.0.12
-- [VPNLINUX-893] Handle expired certificate error raised when getting certificate in PEM format
+- Handle expired certificate error raised when getting certificate in PEM format
 
 * Wed Jul 17 2024 Luke Titley <luke.titley@proton.ch> 0.0.11
 - Switch over to newer local agent api

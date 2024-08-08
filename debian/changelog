@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.3.0) unstable; urgency=medium
+
+  * Handle certificate expiration midway through a session
+
+ -- Luke Titley <luke.titley@proton.ch>  Thu, 08 Aug 2024 14:50:23 +0200
+
 protonvpn-network-manager-wireguard (0.2.0) unstable; urgency=medium
 
   * Notify when agent connection goes down

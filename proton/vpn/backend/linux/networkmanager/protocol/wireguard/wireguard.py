@@ -187,6 +187,11 @@ class Wireguard(LinuxNetworkManager):
         read from the local agent connection."""
         if status.state == State.CONNECTED:
             self._notify_subscribers(events.Connected(EventContext(connection=self)))
+        elif status.state == State.HARD_JAILED:
+            if status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
+                self._notify_subscribers(
+                    events.ExpiredCertificate(EventContext(connection=self))
+                )
         elif status.state == State.DISCONNECTED:
             self._notify_subscribers(
                 events.Timeout(EventContext(connection=self))
