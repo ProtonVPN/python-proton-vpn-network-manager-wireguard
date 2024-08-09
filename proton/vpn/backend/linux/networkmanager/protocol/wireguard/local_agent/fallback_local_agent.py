@@ -50,6 +50,12 @@ class ExpiredCertificateError(LocalAgentError):
     """
 
 
+class ErrorMessage(LocalAgentError):
+    """
+    Raised when the server returns an error message.
+    """
+
+
 class State(Enum):  # pylint: disable=too-few-public-methods
     """Local agent connection states."""
     CONNECTED = auto()
@@ -81,6 +87,17 @@ class Status:
     reason: Optional[Reason] = None
 
 
+@dataclass
+class AgentFeatures:
+    """Contains features that affect a vpn connection"""
+    netshield_level: Optional[int] = None
+    randomized_nat: Optional[bool] = None
+    split_tcp: Optional[bool] = None
+    port_forwarding: Optional[bool] = None
+    jail: Optional[bool] = None
+    bouncing: Optional[str] = None
+
+
 class AgentConnection:  # pylint: disable=too-few-public-methods
     """
     Local agent connection stub.
@@ -88,6 +105,11 @@ class AgentConnection:  # pylint: disable=too-few-public-methods
     This exists only to avoid an import error when using the fallback local
     agent.
     """
+    async def request_status(self):
+        """Dummy method to match the real AgentConnection API."""
+
+    async def request_features(self, features: AgentFeatures):
+        """Dummy method to match the real AgentConnection API."""
 
 
 class AgentConnector:  # pylint: disable=too-few-public-methods

@@ -28,16 +28,16 @@ from concurrent.futures import Future
 
 import gi
 
-
 gi.require_version("NM", "1.0")  # noqa: required before importing NM module
 # pylint: disable=wrong-import-position
 from gi.repository import NM
 
-from proton.vpn.connection.events import EventContext
 from proton.vpn.connection import events
+from proton.vpn.connection.events import EventContext
+from proton.vpn.connection.interfaces import Settings, Features
 from proton.vpn.backend.linux.networkmanager.core import LinuxNetworkManager
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent \
-    import Status, State, ReasonCode
+    import Status, State, ReasonCode, AgentFeatures
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent.listener \
     import AgentListener
 
@@ -79,7 +79,14 @@ class Wireguard(LinuxNetworkManager):
     async def update_credentials(self, credentials):
         """Notifies the vpn server that the wireguard certificate needs a refresh."""
         await super().update_credentials(credentials)
-        await self._start_local_agent_listener()
+        if self._agent_listener.is_running:
+            await self._start_local_agent_listener()
+
+    async def update_settings(self, settings: Settings):
+        """Update features on the active agent connection."""
+        await super().update_settings(settings)
+        if self._agent_listener.is_running:
+            await self._request_connection_features(settings.features)
 
     def _modify_connection(self):
         self._set_custom_connection_id()
@@ -171,6 +178,16 @@ class Wireguard(LinuxNetworkManager):
 
         self.connection.add_setting(wireguard_config)
 
+    def _get_agent_features(self, features: Features) -> AgentFeatures:
+        return AgentFeatures(
+            netshield_level=features.netshield,
+            randomized_nat=not features.moderate_nat if features.moderate_nat is not None else None,
+            split_tcp=features.vpn_accelerator,
+            port_forwarding=features.port_forwarding,
+            bouncing=self._vpnserver.label,
+            jail=None  # Currently not in use
+        )
+
     async def _start_local_agent_listener(self):
         if self._agent_listener.is_running:
             logger.info("Closing existing agent connection...")
@@ -179,23 +196,31 @@ class Wireguard(LinuxNetworkManager):
         logger.info("Waiting for agent status from %s...", self._vpnserver.domain)
         self._agent_listener.start(
             self._vpnserver.domain,
-            self._vpncredentials.pubkey_credentials
+            self._vpncredentials.pubkey_credentials,
+            self._get_agent_features(self._settings.features)
         )
 
     async def _on_local_agent_status(self, status: Status):
         """The local agent listener calls this method whenever a new status is
         read from the local agent connection."""
+        logger.info("Agent status received: %s", status)
         if status.state == State.CONNECTED:
             self._notify_subscribers(events.Connected(EventContext(connection=self)))
         elif status.state == State.HARD_JAILED:
             self._handle_hard_jailed_state(status)
         elif status.state == State.DISCONNECTED:
-            self._notify_subscribers(
-                events.Timeout(EventContext(connection=self))
-            )
+            if status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
+                self._notify_subscribers(
+                    events.ExpiredCertificate(EventContext(connection=self))
+                )
+            else:
+                self._notify_subscribers(
+                    events.Timeout(EventContext(connection=self))
+                )
         else:
             self._notify_subscribers(
-                events.UnexpectedError(EventContext(connection=self)))
+                events.UnexpectedError(EventContext(connection=self))
+            )
 
     def _handle_hard_jailed_state(self, status: Status):
         if status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
@@ -222,6 +247,12 @@ class Wireguard(LinuxNetworkManager):
             ReasonCode.MAX_SESSIONS_VISIONARY,
             ReasonCode.MAX_SESSIONS_PRO
         )
+
+    async def _request_connection_features(self, features: Features):
+        agent_features = self._get_agent_features(features)
+        logger.info("Requesting VPN connection features...")
+        await self._agent_listener.request_features(agent_features)
+        logger.info("VPN connection features requested.")
 
     # pylint: disable=arguments-renamed
     def _on_state_changed(

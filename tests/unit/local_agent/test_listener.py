@@ -1,5 +1,5 @@
 from asyncio import CancelledError
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
@@ -41,7 +41,7 @@ async def test_stop_cancels_background_task():
     # Given
     listener = AgentListener(connector=AsyncMock())
 
-    listener.start("domain", "credentials")
+    listener.start("domain", "credentials", features=Mock())
     assert listener.background_task
 
     # When

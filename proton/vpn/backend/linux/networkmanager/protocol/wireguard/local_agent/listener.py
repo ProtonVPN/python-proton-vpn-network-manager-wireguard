@@ -23,8 +23,8 @@ import proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent\
     .fallback_local_agent as fallback_local_agent  # pylint: disable=R0402
 
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent \
-    import AgentConnection, Status, State, AgentConnector, \
-    LocalAgentError, ExpiredCertificateError, Reason, ReasonCode
+    import AgentConnection, Status, State, AgentConnector, AgentFeatures, \
+    ErrorMessage, ExpiredCertificateError, Reason, ReasonCode
 
 from proton.vpn import logging
 
@@ -40,8 +40,8 @@ class AgentListener:
     ):
         self._subscribers = subscribers or []
         self._connector = connector or AgentConnector()
+        self._connection = None
         self._background_task = None
-        self._connection_retries = None
 
     @property
     def is_running(self):
@@ -53,62 +53,70 @@ class AgentListener:
         """Returns the background task that listens for local agent messages."""
         return self._background_task
 
-    def start(self, domain: str, credentials: str):
+    def start(self, domain: str, credentials: str, features: AgentFeatures):
         """Start listening for local agent messages in the background."""
         if self._background_task:
             logger.warning("Agent listener was already started")
             return
 
         logger.info("Starting agent listener...")
-        self._connection_retries = 0
-        self._background_task = asyncio.create_task(self._run_in_background(domain, credentials))
+        self._background_task = asyncio.create_task(
+            self._run_in_background(domain, credentials, features)
+        )
         self._background_task.add_done_callback(self._on_background_task_stopped)
 
-    async def _run_in_background(self, domain, credentials):
+    async def _run_in_background(self, domain, credentials, features: AgentFeatures):
         """Run the listener in the background."""
-        logger.info("Establishing agent connection...")
-        connection = await self._connect(domain, credentials)
-        logger.info("Agent connection established.")
-
-        if not connection:
-            # The fallback local agent implementation does not return a connection object.
-            # This branch should be removed after removing the fallback implementation.
-            await self._notify_subscribers(fallback_local_agent.Status(state=State.CONNECTED))
-            return
-
-        await self.listen(connection)
-
-    async def _connect(self, domain, credentials) -> AgentConnection:
         try:
-            return await self._connector.connect(domain, credentials)
+            logger.info("Establishing agent connection...")
+            self._connection = await self._connector.connect(domain, credentials)
+            logger.info("Agent connection established.")
+
+            if not self._connection:
+                # The fallback local agent implementation does not return a connection object.
+                # This branch should be removed after removing the fallback implementation.
+                await self._notify_subscribers(fallback_local_agent.Status(state=State.CONNECTED))
+                return
+
+            logger.info("Requesting agent features...")
+            await self._connection.request_features(features)
+            logger.info("Listening on agent connection...")
+            await self.listen(self._connection)
+
+        except asyncio.CancelledError:
+            logger.info("Agent listener was successfully stopped.")
         except ExpiredCertificateError:
-            logger.exception("Expired certificate upon establishing agent connection.")
+            logger.warning("Expired certificate upon establishing agent connection.", exc_info=True)
             message = fallback_local_agent.Status(
-                state=State.HARDJAILED, reason=Reason(code=ReasonCode.CERTIFICATE_EXPIRED)
+                state=State.DISCONNECTED,
+                reason=Reason(code=ReasonCode.CERTIFICATE_EXPIRED)
             )
             await self._notify_subscribers(message)
-            raise
-        except (TimeoutError, LocalAgentError):
+        except TimeoutError:
+            logger.warning("Agent connection timed out.", exc_info=True)
+        except Exception:
+            logger.error("Agent listener was unexpectedly closed.")
             message = fallback_local_agent.Status(state=State.DISCONNECTED)
             await self._notify_subscribers(message)
             raise
+        finally:
+            if self._connection:
+                self._connection.close()
+                self._connection = None
 
-    async def listen(self, agent_connection: AgentConnection):
+    async def listen(self, connection: AgentConnection):
         """Listens for local agent messages."""
         while True:
             try:
-                message = await agent_connection.read()
-            except LocalAgentError:
-                # Since currently we are raising exceptions when the local agent sends an error
-                # response, for now we just log them until we put proper error handling in place.
-                logger.exception("Unhandled agent connection error.")
+                message = await connection.read()
+            except ErrorMessage:
+                logger.warning("Unhandled agent error message.", exc_info=True)
                 continue
-            except TimeoutError:
-                await self._notify_subscribers(
-                    fallback_local_agent.Status(state=State.DISCONNECTED)
-                )
-                raise
             await self._notify_subscribers(message)
+
+    async def request_features(self, features: AgentFeatures):
+        """Requests the features to be set on the current VPN connection."""
+        await self._connection.request_features(features)
 
     def _on_background_task_stopped(self, background_task: asyncio.Task):
         self._background_task = None
@@ -116,14 +124,7 @@ class AgentListener:
             # Bubble up any unexpected exceptions.
             background_task.result()
         except asyncio.CancelledError:
-            # When the listener is stopped, the background task is cancelled,
-            # and it raises this exception.
             logger.info("Agent listener was successfully stopped.")
-        except TimeoutError:
-            logger.warning("Agent listener timed out.")
-        except Exception:
-            logger.error("Agent listener was unexpectedly closed.")
-            raise
 
     def stop(self):
         """Stop listening to the local agent connection."""
