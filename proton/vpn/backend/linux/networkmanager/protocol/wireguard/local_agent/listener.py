@@ -24,7 +24,7 @@ import proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent\
 
 from proton.vpn.backend.linux.networkmanager.protocol.wireguard.local_agent \
     import AgentConnection, Status, State, AgentConnector, AgentFeatures, \
-    ErrorMessage, ExpiredCertificateError, Reason, ReasonCode
+    ErrorMessage, ExpiredCertificateError, ReasonCode
 
 from proton.vpn import logging
 
@@ -86,14 +86,14 @@ class AgentListener:
         except asyncio.CancelledError:
             logger.info("Agent listener was successfully stopped.")
         except ExpiredCertificateError:
-            logger.warning("Expired certificate upon establishing agent connection.", exc_info=True)
+            logger.warning("Expired certificate upon establishing agent connection.")
             message = fallback_local_agent.Status(
                 state=State.DISCONNECTED,
-                reason=Reason(code=ReasonCode.CERTIFICATE_EXPIRED)
+                reason=fallback_local_agent.Reason(code=ReasonCode.CERTIFICATE_EXPIRED)
             )
             await self._notify_subscribers(message)
         except TimeoutError:
-            logger.warning("Agent connection timed out.", exc_info=True)
+            logger.warning("Agent connection timed out.")
         except Exception:
             logger.error("Agent listener was unexpectedly closed.")
             message = fallback_local_agent.Status(state=State.DISCONNECTED)

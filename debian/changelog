@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.4.1) unstable; urgency=medium
+
+  * Fix certificate expired error handling regression
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Tue, 13 Aug 2024 15:06:47 +0200
+
 protonvpn-network-manager-wireguard (0.4.0) unstable; urgency=medium
 
   * Request local agent connection features

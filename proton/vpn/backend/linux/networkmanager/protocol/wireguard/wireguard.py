@@ -79,8 +79,7 @@ class Wireguard(LinuxNetworkManager):
     async def update_credentials(self, credentials):
         """Notifies the vpn server that the wireguard certificate needs a refresh."""
         await super().update_credentials(credentials)
-        if self._agent_listener.is_running:
-            await self._start_local_agent_listener()
+        await self._start_local_agent_listener()
 
     async def update_settings(self, settings: Settings):
         """Update features on the active agent connection."""

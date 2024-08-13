@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.4.0
+%define version 0.4.1
 %define release 1
 
 Prefix: %{_prefix}
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Tue Aug 13 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.4.1
+- Fix certificate expired error handling regression
+
 * Fri Aug 09 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.4.0
 - Request local agent connection features
 
