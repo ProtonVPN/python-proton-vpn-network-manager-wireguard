@@ -94,6 +94,8 @@ class AgentListener:
             await self._notify_subscribers(message)
         except TimeoutError:
             logger.warning("Agent connection timed out.")
+            message = fallback_local_agent.Status(state=State.DISCONNECTED)
+            await self._notify_subscribers(message)
         except Exception:
             logger.error("Agent listener was unexpectedly closed.")
             message = fallback_local_agent.Status(state=State.DISCONNECTED)

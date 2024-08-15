@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.4.2) unstable; urgency=medium
+
+  * Resume local agent connection after deserializing persisted connection
+
+ -- Luke Titley <luke.titley@proton.ch>  Wed, 21 Aug 2024 14:09:14 +0200
+
 protonvpn-network-manager-wireguard (0.4.1) unstable; urgency=medium
 
   * Fix certificate expired error handling regression

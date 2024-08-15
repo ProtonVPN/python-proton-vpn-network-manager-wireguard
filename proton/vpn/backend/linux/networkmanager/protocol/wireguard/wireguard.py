@@ -32,7 +32,7 @@ gi.require_version("NM", "1.0")  # noqa: required before importing NM module
 # pylint: disable=wrong-import-position
 from gi.repository import NM
 
-from proton.vpn.connection import events
+from proton.vpn.connection import events, states
 from proton.vpn.connection.events import EventContext
 from proton.vpn.connection.interfaces import Settings, Features
 from proton.vpn.backend.linux.networkmanager.core import LinuxNetworkManager
@@ -208,7 +208,7 @@ class Wireguard(LinuxNetworkManager):
         elif status.state == State.HARD_JAILED:
             self._handle_hard_jailed_state(status)
         elif status.state == State.DISCONNECTED:
-            if status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
+            if status.reason and status.reason.code == ReasonCode.CERTIFICATE_EXPIRED:
                 self._notify_subscribers(
                     events.ExpiredCertificate(EventContext(connection=self))
                 )
@@ -247,6 +247,14 @@ class Wireguard(LinuxNetworkManager):
             ReasonCode.MAX_SESSIONS_PRO
         )
 
+    def _async_start_local_agent_listener(self):
+        """This schedules a local agent listener in asyncio."""
+        future = asyncio.run_coroutine_threadsafe(
+            self._start_local_agent_listener(),
+            self._asyncio_loop
+        )
+        future.add_done_callback(lambda f: f.result())
+
     async def _request_connection_features(self, features: Features):
         agent_features = self._get_agent_features(features)
         logger.info("Requesting VPN connection features...")
@@ -277,11 +285,7 @@ class Wireguard(LinuxNetworkManager):
         )
 
         if state is NM.ActiveConnectionState.ACTIVATED:
-            future = asyncio.run_coroutine_threadsafe(
-                self._start_local_agent_listener(),
-                self._asyncio_loop
-            )
-            future.add_done_callback(lambda f: f.result())  # Bubble up unhandled exceptions.
+            self._async_start_local_agent_listener()
         elif state == NM.ActiveConnectionState.DEACTIVATED:
             self._agent_listener.stop()
             self._notify_subscribers_threadsafe(
@@ -289,6 +293,16 @@ class Wireguard(LinuxNetworkManager):
             )
         else:
             logger.debug("Ignoring VPN state change: %s", state.value_name)
+
+    def _initialize_persisted_connection(
+            self, connection_id: str
+    ) -> states.State:
+        """Implemented in wireguard so we can start local agent listener."""
+        state = super()._initialize_persisted_connection(connection_id)
+
+        if isinstance(state, states.Connected):
+            self._async_start_local_agent_listener()
+        return state
 
     @classmethod
     def _get_priority(cls):
