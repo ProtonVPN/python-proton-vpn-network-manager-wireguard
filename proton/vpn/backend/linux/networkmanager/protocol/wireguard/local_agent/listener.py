@@ -78,9 +78,11 @@ class AgentListener:
                 await self._notify_subscribers(fallback_local_agent.Status(state=State.CONNECTED))
                 return
 
-            logger.info("Requesting agent features...")
-            await self._connection.request_features(features)
-            logger.info("Listening on agent connection...")
+            if features:
+                logger.info("Requesting agent features...")
+                await self._connection.request_features(features)
+                logger.info("Listening on agent connection...")
+
             await self.listen(self._connection)
 
         except asyncio.CancelledError:

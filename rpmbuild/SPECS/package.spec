@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.4.2
+%define version 0.4.3
 %define release 1
 
 Prefix: %{_prefix}
@@ -51,7 +51,10 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
-* Wed Aug 21 2024 Luke Titley <luke.titley@proton.ch> 0.4.2
+* Wed Aug 21 2024 Luke Titley <luke.titley@proton.ch> 0.4.3
+- Dont request features for free users
+
+* Wed Aug 15 2024 Luke Titley <luke.titley@proton.ch> 0.4.2
 - Resume local agent connection after deserializing persisted connection
 
 * Tue Aug 13 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.4.1

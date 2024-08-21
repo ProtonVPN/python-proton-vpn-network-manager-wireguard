@@ -1,8 +1,14 @@
+protonvpn-network-manager-wireguard (0.4.3) unstable; urgency=medium
+
+  * Dont request features for free users
+
+ -- Luke Titley <luke.titley@proton.ch>  Wed, 21 Aug 2024 17:09:14 +0200
+
 protonvpn-network-manager-wireguard (0.4.2) unstable; urgency=medium
 
   * Resume local agent connection after deserializing persisted connection
 
- -- Luke Titley <luke.titley@proton.ch>  Wed, 21 Aug 2024 14:09:14 +0200
+ -- Luke Titley <luke.titley@proton.ch>  Wed, 15 Aug 2024 14:09:14 +0200
 
 protonvpn-network-manager-wireguard (0.4.1) unstable; urgency=medium
 

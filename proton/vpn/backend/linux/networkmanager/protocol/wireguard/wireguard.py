@@ -178,6 +178,12 @@ class Wireguard(LinuxNetworkManager):
         self.connection.add_setting(wireguard_config)
 
     def _get_agent_features(self, features: Features) -> AgentFeatures:
+        if features is None:
+            # The free tier does not pass connection features since
+            # our servers do not allow setting connection features on the free
+            # tier, not even the defaults.
+            return None
+
         return AgentFeatures(
             netshield_level=features.netshield,
             randomized_nat=not features.moderate_nat if features.moderate_nat is not None else None,
