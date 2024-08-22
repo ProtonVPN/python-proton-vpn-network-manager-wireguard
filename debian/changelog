@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.4.5) unstable; urgency=medium
+
+  * Dont request features for free users, fix for updates
+
+ -- Luke Titley <luke.titley@proton.ch>  Thu, 22 Aug 2024 17:09:14 +0200
+
 protonvpn-network-manager-wireguard (0.4.4) unstable; urgency=medium
 
   * Expose property to signal that feature updates can be applied to active WG connections

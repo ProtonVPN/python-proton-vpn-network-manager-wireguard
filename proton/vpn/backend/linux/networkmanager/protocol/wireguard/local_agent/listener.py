@@ -120,7 +120,8 @@ class AgentListener:
 
     async def request_features(self, features: AgentFeatures):
         """Requests the features to be set on the current VPN connection."""
-        await self._connection.request_features(features)
+        if features:
+            await self._connection.request_features(features)
 
     def _on_background_task_stopped(self, background_task: asyncio.Task):
         self._background_task = None
