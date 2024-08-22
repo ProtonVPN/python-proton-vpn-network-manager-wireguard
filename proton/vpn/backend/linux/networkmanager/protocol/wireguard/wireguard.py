@@ -81,6 +81,14 @@ class Wireguard(LinuxNetworkManager):
         await super().update_credentials(credentials)
         await self._start_local_agent_listener()
 
+    @property
+    def are_feature_updates_applied_when_active(self) -> bool:
+        """
+        Returns whether the connection features updates are applied on the fly
+        while the connection is already active, without restarting the connection.
+        """
+        return True
+
     async def update_settings(self, settings: Settings):
         """Update features on the active agent connection."""
         await super().update_settings(settings)
