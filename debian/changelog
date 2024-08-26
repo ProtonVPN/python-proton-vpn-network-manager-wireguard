@@ -1,3 +1,9 @@
+protonvpn-network-manager-wireguard (0.4.6) unstable; urgency=medium
+
+  * Do not request features for free users
+
+ -- Josep Llaneras <josep.llaneras@proton.ch>  Mon, 26 Aug 2024 16:43:29 +0200
+
 protonvpn-network-manager-wireguard (0.4.5) unstable; urgency=medium
 
   * Dont request features for free users, fix for updates
