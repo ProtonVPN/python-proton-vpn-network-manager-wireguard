@@ -1,5 +1,5 @@
 %define unmangled_name proton-vpn-network-manager-wireguard
-%define version 0.4.6
+%define version 0.4.7
 %define release 1
 
 Prefix: %{_prefix}
@@ -19,13 +19,13 @@ BuildRoot: %{_tmppath}/%{unmangled_name}-%{version}-%{release}-buildroot
 
 BuildRequires: python3-proton-vpn-logger
 BuildRequires: python3-proton-vpn-api-core >= 0.33.0
-BuildRequires: python3-proton-vpn-network-manager
+BuildRequires: python3-proton-vpn-network-manager >= 0.6.3
 BuildRequires: python3-proton-vpn-killswitch-network-manager-wireguard
 BuildRequires: python3-setuptools
 
 Requires: python3-proton-vpn-logger
 Requires: python3-proton-vpn-api-core >= 0.33.0
-Requires: python3-proton-vpn-network-manager
+Requires: python3-proton-vpn-network-manager >= 0.6.3
 Requires: python3-proton-vpn-killswitch-network-manager-wireguard
 Requires: python3-setuptools
 
@@ -51,6 +51,9 @@ python3 setup.py install --single-version-externally-managed -O1 --root=$RPM_BUI
 %defattr(-,root,root)
 
 %changelog
+* Mon Sep 02 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.4.7
+- Deprecate this package
+
 * Mon Aug 26 2024 Josep Llaneras <josep.llaneras@proton.ch> 0.4.6
 - Do not request features for free users
 

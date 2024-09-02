@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name="proton-vpn-network-manager-wireguard",
-    version="0.4.6",
+    version="0.4.7",
     description="Proton VPN Wireguard NM connector for linux",
     author="Proton AG",
     author_email="opensource@proton.me",
@@ -16,11 +16,6 @@ setup(
     ],
     extras_require={
         "development": ["wheel", "pytest", "pytest-cov", "pytest-asyncio", "flake8", "pylint", "pygobject-stubs"]
-    },
-    entry_points={
-        "proton_loader_linuxnetworkmanager": [
-            "wireguard = proton.vpn.backend.linux.networkmanager.protocol.wireguard:Wireguard",
-        ]
     },
     python_requires=">=3.8",
     license="GPLv3",
